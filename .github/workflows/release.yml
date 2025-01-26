@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Check out git repository
         uses: actions/checkout@v4
+        with:
+          submodules: 'true'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4

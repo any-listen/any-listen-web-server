@@ -21,7 +21,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          corepack enable
+          corepack enable pnpm
           cd any-listen && pnpm install
 
       - name: Build src code

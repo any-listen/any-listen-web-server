@@ -73,4 +73,4 @@ jobs:
 
       - name: Generate file MD5
         run: |
-          md5sum *.zip
+          md5sum any-listen/build/*.zip

@@ -65,7 +65,7 @@ jobs:
           draft: false
           tag_name: v${{ env.PACKAGE_VERSION }}
           files: |
-            any-listen-web-server_v${{ env.PACKAGE_VERSION }}.zip
+            any-listen/build/any-listen-web-server_v${{ env.PACKAGE_VERSION }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

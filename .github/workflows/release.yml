@@ -60,7 +60,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          body_path: ./any-listen/packages/web-server/changeLog.md
+          body_path: ./any-listen/packages/web-server/publish/changeLog.md
           prerelease: false
           draft: false
           tag_name: v${{ env.PACKAGE_VERSION }}

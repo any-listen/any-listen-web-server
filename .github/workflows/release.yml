@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+permissions:
+  contents: write
 
 jobs:
   Linux:
@@ -58,7 +60,7 @@ jobs:
         run: cd any-listen/build && zip -r any-listen-web-server_v${{ env.PACKAGE_VERSION }}.zip server public data ecosystem.config.js index.cjs LICENSE Readme.md
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body_path: ./any-listen/packages/web-server/publish/changeLog.md
           prerelease: false

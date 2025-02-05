@@ -1,16 +1,54 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
+    paths:
+      - './any-listen/**'
+
 permissions:
   contents: write
 
 jobs:
+  CheckTag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.check_tag.outputs.tag }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: Check if submodule latest commit has a tag
+      id: check_tag
+      run: |
+        cd any-listen
+        latest_commit=$(git log -1 --format=%H)
+        tag=$(git tag --contains $latest_commit)
+
+        if [ -z "$tag" ]; then
+          echo "No tag found for the latest commit in the submodule."
+          echo "tag=" >> $GITHUB_OUTPUT
+        else
+          echo "Tag found for the latest commit: $tag"
+          if [[ "$tag" == webserver-* ]]; then
+            echo "Tag found for the latest commit: $tag, commit: $latest_commit"
+            tag_formated=$(echo "$tag" | sed 's/^webserver-v\?//')
+            echo "tag=$tag_formated" >> $GITHUB_OUTPUT
+          else
+            echo "Tag does not start with 'webserver-v', skipping build."
+            echo "tag=" >> $GITHUB_OUTPUT
+          fi
+        fi
+
   Linux:
+    needs: CheckTag
     name: Build
     runs-on: ubuntu-latest
+    if: needs.CheckTag.outputs.tag != ''
     steps:
       - name: Check out git repository
         uses: actions/checkout@v4

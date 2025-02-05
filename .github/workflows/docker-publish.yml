@@ -71,7 +71,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: type=raw,value=${{ needs.CheckTag.outputs.tag }}
+          tags: |
+            type=raw,value=${{ needs.CheckTag.outputs.tag }}
+            type=raw,value=latest
 
       # Login to Docker Hub
       # https://github.com/docker/login-action
@@ -121,7 +123,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: type=raw,value=${{ needs.CheckTag.outputs.tag }}
+          tags: |
+            type=raw,value=${{ needs.CheckTag.outputs.tag }}
+            type=raw,value=latest
 
       # Login to Docker Hub
       # https://github.com/docker/login-action

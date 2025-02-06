@@ -5,8 +5,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - './any-listen/**'
+    paths-ignore:
+      - '.github/**'
+
 env:
   DOCKERHUB_REPO: lyswhut/any-listen-web-server
   # GHCR_REPO: ghcr.io/any-listen/any-listen-web-server
@@ -169,7 +170,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./any-listen
-          file: ./any-listen/Dockerfile.armv7l
+          file: ./any-listen/Dockerfile.lts-slim
           platforms: ${{ env.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,"name=${{ env.DOCKERHUB_REPO }}",push-by-digest=true,name-canonical=true,push=true

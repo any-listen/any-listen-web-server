@@ -43,12 +43,32 @@ jobs:
             echo "tag=" >> $GITHUB_OUTPUT
           fi
         fi
-
-  Linux:
+  CreateTag:
     needs: CheckTag
-    name: Build
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.create_tag.outputs.tag }}
     if: needs.CheckTag.outputs.tag != ''
+    steps:
+      - name: Create git tag
+        uses: pkgdeps/git-tag-action@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo: ${{ github.repository }}
+          version: ${{ needs.CheckTag.outputs.tag }}
+          git_commit_sha: ${{ github.sha }}
+          git_tag_prefix: "v"
+
+      - name: Output tag
+        id: create_tag
+        run: |
+          echo "tag=${{ needs.CheckTag.outputs.tag }}" >> $GITHUB_OUTPUT
+
+  BuildServer:
+    needs: CreateTag
+    name: Build Server
+    runs-on: ubuntu-latest
+    if: needs.CreateTag.outputs.tag != ''
     steps:
       - name: Check out git repository
         uses: actions/checkout@v4
@@ -72,11 +92,13 @@ jobs:
           pnpm install
 
       - name: Build src code
+        env:
+          SKIP_LIB_COPY: true
         run: |
           cd any-listen
           npm run build:web
           cp ../ecosystem.config.js LICENSE ./build
-          cp packages/web-server/Readme.md ./build
+          cp packages/web-server/README.md ./build
           mkdir ./build/data
           cp ../config.cjs ./build/data
 
@@ -85,30 +107,248 @@ jobs:
       #     node -p -e '`PACKAGE_NAME=${require("./any-listen/packages/web-server/package.json").name}`' >> $GITHUB_ENV
       #     node -p -e '`PACKAGE_VERSION=${require("./any-listen/packages/web-server/package.json").version}`' >> $GITHUB_ENV
 
-      - name: Create git tag
-        uses: pkgdeps/git-tag-action@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          github_repo: ${{ github.repository }}
-          version: ${{ needs.CheckTag.outputs.tag }}
-          git_commit_sha: ${{ github.sha }}
-          git_tag_prefix: "v"
 
       - name: Zip files
-        run: cd any-listen/build && zip -r any-listen-web-server_v${{ needs.CheckTag.outputs.tag }}.zip server node_modules public data ecosystem.config.js index.cjs LICENSE Readme.md
+        run: cd any-listen/build && zip -r any-listen-web-server_v${{ needs.CreateTag.outputs.tag }}.zip server node_modules public data ecosystem.config.js index.cjs LICENSE Readme.md
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: ./any-listen/packages/web-server/publish/changeLog.md
-          prerelease: false
-          draft: false
-          tag_name: v${{ needs.CheckTag.outputs.tag }}
+          draft: true
+          tag_name: v${{ needs.CreateTag.outputs.tag }}
           files: |
-            any-listen/build/any-listen-web-server_v${{ needs.CheckTag.outputs.tag }}.zip
+            any-listen/build/any-listen-web-server_v${{ needs.CreateTag.outputs.tag }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate file MD5
         run: |
           md5sum any-listen/build/*.zip
+
+  # BuildNativeLibraryWindows:
+  #   needs: CreateTag
+  #   runs-on: windows-latest
+  #   strategy:
+  #     matrix:
+  #       architecture: ['x64', 'ia32']
+  #   name: Windows ${{ matrix.architecture }}
+  #   steps:
+  #     - name: Check out git repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         submodules: 'true'
+  #     - name: Cache file
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           native-release/build
+  #           native-release/prebuilds
+  #         key: windows-build-caches-
+  #         restore-keys: windows-build-caches-
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #     - name: Build
+  #       env:
+  #         LIB_ARCH: ${{ matrix.architecture }}
+  #       run: |
+  #         cd native-release
+  #         node index.js
+
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         draft: true
+  #         tag_name: v${{ needs.CreateTag.outputs.tag }}
+  #         files: native-release/dist/*.tar.gz
+
+  # BuildNativeLibraryWindowsArm:
+  #   needs: CreateTag
+  #   runs-on: windows-11-arm
+  #   name: Windows arm64
+  #   steps:
+  #     - name: Check out git repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         submodules: 'true'
+  #     - name: Cache file
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           native-release/build
+  #           native-release/prebuilds
+  #         key: windows-arm-build-caches-
+  #         restore-keys: windows-arm-build-caches-
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #     - name: Build
+  #       run: |
+  #         cd native-release
+  #         node index.js
+
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         draft: true
+  #         tag_name: v${{ needs.CreateTag.outputs.tag }}
+  #         files: native-release/dist/*.tar.gz
+
+  # BuildNativeLibraryMacOS:
+  #   needs: CreateTag
+  #   runs-on: macos-latest
+  #   strategy:
+  #     matrix:
+  #       architecture: ['x64', 'arm64']
+  #   name: MacOS ${{ matrix.architecture }}
+  #   steps:
+  #     - name: Install setuptools
+  #       run: |
+  #         mkdir ~/.venv
+  #         python3 -m venv ~/.venv
+  #         source ~/.venv/bin/activate
+  #         python3 -m pip install setuptools
+  #     - name: Check out git repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         submodules: 'true'
+
+  #     - name: Cache file
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           native-release/build
+  #           native-release/prebuilds
+  #         key: mac-amd64-build-caches-
+  #         restore-keys: mac-amd64-build-caches-
+
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #     - name: Build
+  #       env:
+  #         LIB_ARCH: ${{ matrix.architecture }}
+  #       run: |
+  #         cd native-release
+  #         node index.js
+
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         draft: true
+  #         tag_name: v${{ needs.CreateTag.outputs.tag }}
+  #         files: native-release/dist/*.tar.gz
+
+  # BuildNativeLibraryLinuxAmd64:
+  #   needs: CreateTag
+  #   runs-on: ubuntu-latest
+  #   container: node:18
+  #   name: Linux amd64
+  #   steps:
+  #     - name: Check out git repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         submodules: 'true'
+
+  #     - name: Cache file
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           native-release/build
+  #           native-release/prebuilds
+  #         key: linux-amd64-build-caches-
+  #         restore-keys: linux-amd64-build-caches-
+
+  #     - name: Build
+  #       run: |
+  #         cd native-release
+  #         node index.js
+
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         draft: true
+  #         tag_name: v${{ needs.CreateTag.outputs.tag }}
+  #         files: native-release/dist/*.tar.gz
+
+  # BuildNativeLibraryLinuxArm:
+  #   needs: CreateTag
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       architecture: ['arm/v7', 'arm64']
+  #   name: Linux ${{ matrix.architecture }}
+  #   steps:
+  #     - name: Check out git repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         submodules: 'true'
+  #     - name: Cache file
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           native-release/build
+  #           native-release/prebuilds
+  #         key: linux-${{ matrix.architecture }}-build-caches-
+  #         restore-keys: |
+  #           linux-${{ matrix.architecture }}-build-caches-
+  #     - uses: docker/setup-qemu-action@v3
+  #       with:
+  #         image: tonistiigi/binfmt:latest
+  #         platforms: arm,arm64
+  #     - run: |
+  #         docker run --rm -v $(pwd):/tmp/project --entrypoint /bin/sh --platform linux/${{ matrix.architecture }} node:18 -c "\
+  #         cd /tmp/project && \
+  #         cd native-release && \
+  #         node index.js"
+
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         draft: true
+  #         tag_name: v${{ needs.CreateTag.outputs.tag }}
+  #         files: native-release/dist/*.tar.gz
+
+  Release:
+    needs:
+      - CreateTag
+      - BuildServer
+      # - BuildNativeLibraryWindows
+      # - BuildNativeLibraryWindowsArm
+      # - BuildNativeLibraryMacOS
+      # - BuildNativeLibraryLinuxAmd64
+      # - BuildNativeLibraryLinuxArm
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Set release variables
+        id: set-release-vars
+        run: |
+          TAG="${{ needs.CreateTag.outputs.tag }}"
+          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "TAG is not in x.x.x format. Using beta settings."
+            echo "log_file=changeLog.beta.md" >> $GITHUB_ENV
+            echo "prerelease=true" >> $GITHUB_ENV
+          else
+            echo "TAG is in x.x.x format. Using regular release settings."
+            echo "log_file=changeLog.md" >> $GITHUB_ENV
+            echo "prerelease=false" >> $GITHUB_ENV
+          fi
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ./any-listen/packages/web-server/publish/${{ env.log_file }}
+          prerelease: ${{ env.prerelease }}
+          draft: false
+          tag_name: v${{ needs.CreateTag.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

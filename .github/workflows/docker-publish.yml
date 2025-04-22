@@ -131,7 +131,7 @@ jobs:
         run: |
           platform=${{ env.platform }}
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
-          
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:

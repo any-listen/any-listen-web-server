@@ -7,8 +7,8 @@ const config = {
   //   // 'www.xxx.com',
   // ],
   // serverName: '', // 服务名称
-  // 'proxy.enabled': false, // 是否使用代理转发请求到本服务器
-  // 'proxy.header': '', // 代理转发的请求头
+  // 'upstreamProxy.enabled': false, // 是否使用代理转发请求到本服务器
+  // 'upstreamProxy.header': '', // 代理转发的请求头
   // 允许访问的本地目录
   // allowPublicDir: ['G:', 'E:\\music'], // windows 例子
   // allowPublicDir: ['/data/music'], // linux

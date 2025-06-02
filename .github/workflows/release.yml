@@ -11,6 +11,9 @@ on:
 permissions:
   contents: write
 
+env:
+  IS_CI: true
+
 jobs:
   CheckTag:
     runs-on: ubuntu-latest

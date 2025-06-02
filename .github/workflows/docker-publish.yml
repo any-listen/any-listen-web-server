@@ -11,6 +11,7 @@ on:
 env:
   DOCKERHUB_REPO: lyswhut/any-listen-web-server
   # GHCR_REPO: ghcr.io/any-listen/any-listen-web-server
+  IS_CI: true
 
 # https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners
 
@@ -67,6 +68,12 @@ jobs:
         with:
           submodules: 'true'
 
+      - name: Get git commit info
+        run: |
+          cd any-listen
+          GIT_COMMIT_ID=$(git log -1 --pretty=format:"%H")
+          GIT_COMMIT_DATE=$(git log -1 --pretty=format:"%ad" --date=iso-strict)
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -100,6 +107,9 @@ jobs:
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v6
+        env:
+          GIT_COMMIT_ID: ${{ env.GIT_COMMIT_ID }}
+          GIT_COMMIT_DATE: ${{ env.GIT_COMMIT_DATE }}
         with:
           context: ./any-listen
           file: ./any-listen/Dockerfile
@@ -137,6 +147,12 @@ jobs:
         with:
           submodules: 'true'
 
+      - name: Get git commit info
+        run: |
+          cd any-listen
+          GIT_COMMIT_ID=$(git log -1 --pretty=format:"%H")
+          GIT_COMMIT_DATE=$(git log -1 --pretty=format:"%ad" --date=iso-strict)
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -169,6 +185,9 @@ jobs:
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v6
+        env:
+          GIT_COMMIT_ID: ${{ env.GIT_COMMIT_ID }}
+          GIT_COMMIT_DATE: ${{ env.GIT_COMMIT_DATE }}
         with:
           context: ./any-listen
           file: ./any-listen/Dockerfile.lts-slim

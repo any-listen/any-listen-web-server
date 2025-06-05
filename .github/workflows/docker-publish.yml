@@ -107,12 +107,13 @@ jobs:
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v6
-        env:
-          GIT_COMMIT_ID: ${{ env.GIT_COMMIT_ID }}
-          GIT_COMMIT_DATE: ${{ env.GIT_COMMIT_DATE }}
         with:
           context: ./any-listen
           file: ./any-listen/Dockerfile
+          build-args: |
+            IS_CI=${{ env.IS_CI }}
+            GIT_COMMIT_ID=${{ env.GIT_COMMIT_ID }}
+            GIT_COMMIT_DATE=${{ env.GIT_COMMIT_DATE }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,"name=${{ env.DOCKERHUB_REPO }}",push-by-digest=true,name-canonical=true,push=true
@@ -185,12 +186,13 @@ jobs:
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v6
-        env:
-          GIT_COMMIT_ID: ${{ env.GIT_COMMIT_ID }}
-          GIT_COMMIT_DATE: ${{ env.GIT_COMMIT_DATE }}
         with:
           context: ./any-listen
           file: ./any-listen/Dockerfile.lts-slim
+          build-args: |
+            IS_CI=${{ env.IS_CI }}
+            GIT_COMMIT_ID=${{ env.GIT_COMMIT_ID }}
+            GIT_COMMIT_DATE=${{ env.GIT_COMMIT_DATE }}
           platforms: ${{ env.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,"name=${{ env.DOCKERHUB_REPO }}",push-by-digest=true,name-canonical=true,push=true

@@ -113,7 +113,7 @@ jobs:
 
 
       - name: Zip files
-        run: cd any-listen/build && zip -r any-listen-web-server_v${{ needs.CreateTag.outputs.tag }}.zip server node_modules public data ecosystem.config.js index.cjs LICENSE Readme.md
+        run: cd any-listen/build && zip -r any-listen-web-server_v${{ needs.CreateTag.outputs.tag }}.zip server public data ecosystem.config.js index.cjs LICENSE README.md
 
       - name: Release
         uses: softprops/action-gh-release@v2

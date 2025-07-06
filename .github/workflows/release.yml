@@ -93,7 +93,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd any-listen
-          pnpm install
+          pnpm install --frozen-lockfile
 
       - name: Build src code
         env:

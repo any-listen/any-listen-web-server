@@ -51,6 +51,7 @@ jobs:
   build:
     needs: CheckTag
     runs-on: ubuntu-latest
+    if: needs.CheckTag.outputs.tag != ''
     strategy:
       fail-fast: false
       matrix:
@@ -137,6 +138,7 @@ jobs:
   buildArmv7l:
     needs: CheckTag
     runs-on: ubuntu-latest
+    if: needs.CheckTag.outputs.tag != ''
     env:
       platform: linux/arm/v7
     steps:

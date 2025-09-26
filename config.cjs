@@ -10,7 +10,8 @@ const config = {
   // 'upstreamProxy.enabled': false, // 是否使用代理转发请求到本服务器
   // 'upstreamProxy.header': '', // 代理转发的请求头
   // 'extension.ghMirrorHosts': [], // 扩展商店的 github 镜像下载站点
-  // httpProxy: '', // 代理服务器
+  // httpProxy: '', // 代理服务器地址，例子 `127.0.0.1:2080`
+
   // 允许访问的本地目录
   // allowPublicDir: ['G:', 'E:\\music'], // windows 例子
   // allowPublicDir: ['/data/music'], // linux

@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '.github/**'
+    paths:
+      - 'any-listen'
 
 permissions:
   contents: write

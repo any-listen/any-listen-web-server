@@ -31,21 +31,15 @@ jobs:
       run: |
         cd any-listen
         latest_commit=$(git log -1 --format=%H)
-        tag=$(git tag --contains $latest_commit)
+        tag=$(git tag --contains "$latest_commit" | grep '^webserver-' | head -n 1)
 
         if [ -z "$tag" ]; then
-          echo "No tag found for the latest commit in the submodule."
+          echo "No matching webserver tag found for the latest commit."
           echo "tag=" >> $GITHUB_OUTPUT
         else
-          echo "Tag found for the latest commit: $tag"
-          if [[ "$tag" == webserver-* ]]; then
-            echo "Tag found for the latest commit: $tag, commit: $latest_commit"
-            tag_formated=$(echo "$tag" | sed 's/^webserver-v\?//')
-            echo "tag=$tag_formated" >> $GITHUB_OUTPUT
-          else
-            echo "Tag does not start with 'webserver-v', skipping build."
-            echo "tag=" >> $GITHUB_OUTPUT
-          fi
+          echo "Tag found for the latest commit: $tag, commit: $latest_commit"
+          tag_formated=$(echo "$tag" | sed 's/^webserver-v\?//')
+          echo "tag=$tag_formated" >> $GITHUB_OUTPUT
         fi
   CreateTag:
     needs: CheckTag

@@ -13,6 +13,7 @@ permissions:
 
 env:
   IS_CI: true
+  SKIP_LIB_COPY: true
 
 jobs:
   CheckTag:
@@ -90,8 +91,6 @@ jobs:
           pnpm install --frozen-lockfile
 
       - name: Build src code
-        env:
-          SKIP_LIB_COPY: true
         run: |
           cd any-listen
           npm run build:web

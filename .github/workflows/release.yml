@@ -22,7 +22,7 @@ jobs:
       tag: ${{ steps.check_tag.outputs.tag }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         submodules: 'true'
         fetch-tags: true
@@ -70,20 +70,20 @@ jobs:
     if: needs.CreateTag.outputs.tag != ''
     steps:
       - name: Check out git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: 'true'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: 10
           run_install: false
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install Dependencies
         run: |
@@ -109,7 +109,7 @@ jobs:
         run: cd any-listen/build && zip -r any-listen-web-server_v${{ needs.CreateTag.outputs.tag }}.zip server public data ecosystem.config.js index.cjs LICENSE README.md
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           draft: true
           tag_name: v${{ needs.CreateTag.outputs.tag }}
@@ -131,7 +131,7 @@ jobs:
   #   name: Windows ${{ matrix.architecture }}
   #   steps:
   #     - name: Check out git repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #       with:
   #         submodules: 'true'
   #     - name: Cache file
@@ -143,7 +143,7 @@ jobs:
   #         key: windows-build-caches-
   #         restore-keys: windows-build-caches-
   #     - name: Install Node.js
-  #       uses: actions/setup-node@v4
+  #       uses: actions/setup-node@v6
   #       with:
   #         node-version: 22
   #     - name: Build
@@ -166,7 +166,7 @@ jobs:
   #   name: Windows arm64
   #   steps:
   #     - name: Check out git repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #       with:
   #         submodules: 'true'
   #     - name: Cache file
@@ -178,7 +178,7 @@ jobs:
   #         key: windows-arm-build-caches-
   #         restore-keys: windows-arm-build-caches-
   #     - name: Install Node.js
-  #       uses: actions/setup-node@v4
+  #       uses: actions/setup-node@v6
   #       with:
   #         node-version: 22
   #     - name: Build
@@ -208,7 +208,7 @@ jobs:
   #         source ~/.venv/bin/activate
   #         python3 -m pip install setuptools
   #     - name: Check out git repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #       with:
   #         submodules: 'true'
 
@@ -222,7 +222,7 @@ jobs:
   #         restore-keys: mac-amd64-build-caches-
 
   #     - name: Install Node.js
-  #       uses: actions/setup-node@v4
+  #       uses: actions/setup-node@v6
   #       with:
   #         node-version: 22
   #     - name: Build
@@ -246,7 +246,7 @@ jobs:
   #   name: Linux amd64
   #   steps:
   #     - name: Check out git repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #       with:
   #         submodules: 'true'
 
@@ -280,7 +280,7 @@ jobs:
   #   name: Linux ${{ matrix.architecture }}
   #   steps:
   #     - name: Check out git repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #       with:
   #         submodules: 'true'
   #     - name: Cache file
@@ -322,7 +322,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: 'true'
 
@@ -341,7 +341,7 @@ jobs:
           fi
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           body_path: ./any-listen/packages/web-server/publish/${{ env.log_file }}
           prerelease: ${{ env.prerelease }}

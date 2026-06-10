@@ -12,7 +12,6 @@ env:
   DOCKERHUB_REPO: lyswhut/any-listen-web-server
   # GHCR_REPO: ghcr.io/any-listen/any-listen-web-server
   IS_CI: true
-  ELECTRON_SKIP_BINARY_DOWNLOAD: true
 
 # https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners
 

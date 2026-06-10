@@ -129,7 +129,7 @@ runs:
         fi
 
 
-        ARGS=(--draft=true)
+        ARGS=(--draft=false)
 
         if [ -n "${{ inputs.title }}" ]; then
           ARGS+=(--title "${{ inputs.title }}")

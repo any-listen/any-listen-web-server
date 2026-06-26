@@ -295,6 +295,7 @@ jobs:
     needs:
       - CheckTag
       - build
+      - buildArm64
       - buildArmv7l
     steps:
       - name: Download digests

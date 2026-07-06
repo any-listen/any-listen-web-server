@@ -127,7 +127,7 @@ jobs:
 
   buildArm64:
     needs: CheckTag
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     if: needs.CheckTag.outputs.tag != ''
     env:
       platform: linux/arm64
@@ -210,7 +210,7 @@ jobs:
 
   buildArmv7l:
     needs: CheckTag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04-arm
     if: needs.CheckTag.outputs.tag != ''
     env:
       platform: linux/arm/v7
